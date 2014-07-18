@@ -15,4 +15,7 @@ public:
     Phase *currentPhase();
     Phase *next();
     void process();
+    unsigned long totalTime();
+    double progress();
+    void printProgress();
 };

@@ -59,6 +59,15 @@ void Cycle::stop() {
     _currentPhase = _n_phases-1;
 }
 
+void Cycle::printProgress() {
+    double progress = progress();
+    int n = (int) (16*progress);
+    for(int i = 0; i < n; i++) {
+        Serial.print("#");
+    }
+    Serial.println();
+}
+
 void Cycle::process() {
     if (currentPhase() != (Phase *)NULL) {
        if (currentPhase()->isDone()) {
@@ -67,9 +76,37 @@ void Cycle::process() {
                n->start();
            }
        }
+       // The above will always print a line with Phase and the Time.
+       printProgress();
     } else {
 #ifdef DEBUG
         Serial.println("No Phases Left");
 #endif
     }
+    
+unsigned long Cycle::totalTime() {
+    unsigned long time;
+    for(int i = 0; i < _n_phases; i++) {
+        time += _phases[i].duration;
+    }
+    return time;
 }
+
+double Cycle::progress() {
+    unsigned long time = totalTime();
+    unsigned long performed = 0;
+    for(int i = 0; i < _n_phases; i++) {
+        if (_phases[i].hasStarted()) {
+            if (_phases[i].isDone() == 0) {
+                performed += _phases[i].duration;
+            } else {
+                performed += _phases[i].duration - _phases[i].timeRemaining();
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    return (double) performed / (double) time;
+}
+    

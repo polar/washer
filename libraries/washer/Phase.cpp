@@ -10,10 +10,16 @@ Phase::Phase(char *name, long duration, Relay *relays[], int states[], int n_rel
 
 void Phase::reset() {
     _startTime = 0;
+    _started = false;
+}
+
+boolean Phase::hasStarted() {
+    return _started;
 }
 
 void Phase::start() {
     _startTime = millis();
+    _started = true;
 #ifdef DEBUG
     Serial.print("Staring Phase ");
     Serial.print(_name);
