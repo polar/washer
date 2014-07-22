@@ -13,6 +13,10 @@ void Phase::reset() {
     _started = false;
 }
 
+long Phase::duration() {
+    return _duration;
+}
+
 boolean Phase::hasStarted() {
     return _started;
 }
@@ -20,7 +24,6 @@ boolean Phase::hasStarted() {
 void Phase::start() {
     _startTime = millis();
     _started = true;
-#ifdef DEBUG
     Serial.print("Staring Phase ");
     Serial.print(_name);
     Serial.print(" at ");
@@ -28,7 +31,6 @@ void Phase::start() {
     Serial.print(" for ");
     Serial.print(_duration);
     Serial.println(" miliseconds");
-#endif
     for(int i = 0; i < _n_relays; i++) {
         _relays[i]->set(_relayStates[i]);
     }
@@ -36,26 +38,29 @@ void Phase::start() {
 
 long Phase::timeRemaining() {
     long timeleft =  _duration - (millis() - _startTime);
+    return timeleft;
+}
+
+void Phase::printTimeRemaining() {
+    long timeleft = timeRemaining();
+
     int secs, mins;
-#ifdef DEBUG   
     Serial.print("Phase ");
     Serial.print(_name);
     Serial.print(" has ");
     Serial.print(timeleft);
     Serial.println(" miliseconds");
-#else
-    Serial.print(_name);
-    Serial.print("  ");
+    Display->home();
+    Display->clear();
+    Display->print(_name);
+    Display->print("  ");
     secs = timeleft/1000;
     mins = secs/60;
     secs = secs % 60;
-    Serial.print(" ");Serial.print(mins);
-    Serial.print(":");
-    if (secs < 10) Serial.print("0");
-    Serial.print(secs);
-    Serial.print("\n");
-#endif
-    return timeleft;
+    Display->print(" ");Display->print(mins);
+    Display->print(":");
+    if (secs < 10) Display->print("0");
+    Display->print(secs);
 }
 
 boolean Phase::isDone() {

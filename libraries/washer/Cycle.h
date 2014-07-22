@@ -1,4 +1,7 @@
+#ifndef __CYCLE_H__
+#define __CYCLE_H__
 #include <Phase.h>
+#include <Display.h>
 
 class Cycle {
     Phase **_phases;
@@ -19,3 +22,4 @@ public:
     double progress();
     void printProgress();
 };
+#endif

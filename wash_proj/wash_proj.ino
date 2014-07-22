@@ -1,20 +1,23 @@
-
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Display.h>
 #include <Cycle.h>
 #include <StartButton.h>
+
   
-Relay *r0 = new Relay("SPRAY",     2); // V-BU
-Relay *r1 = new Relay("HI_MOTOR1", 3); // T-BU
-Relay *r2 = new Relay("HI_MOTOR2", 4); // T-OR
-Relay *r3 = new Relay("LO_MOTOR",  5); // V-T
-Relay *r4 = new Relay("AGITATE1",  6); // R-W-BLK
-Relay *r5 = new Relay("AGITATE2",  7); // Y-BU
-Relay *r6 = new Relay("WASH",      8); // P-BR
-Relay *r7 = new Relay("RINSE",     9); // P-BR
-Relay *r8 = new Relay("SPIN1",    10); // R-BU
-Relay *r9 = new Relay("SPIN2",    11); // Y-W-BLK
-Relay *rA = new Relay("BYPASS",   12); // BLK-W-GY
-Relay *rB = new Relay("FILL",     13); // BK-W-V
-Relay *rC = new Relay("ACTIVE",   A5); // BK-W-BLK
+Relay *r0 = new Relay("SPRAY",     3); // V-BU
+Relay *r1 = new Relay("HI_MOTOR1", 4); // T-BU
+Relay *r2 = new Relay("HI_MOTOR2", 5); // T-OR
+Relay *r3 = new Relay("LO_MOTOR",  6); // V-T
+Relay *r4 = new Relay("AGITATE1",  7); // R-W-BLK
+Relay *r5 = new Relay("AGITATE2",  8); // Y-BU
+Relay *r6 = new Relay("WASH",      9); // P-BR
+Relay *r7 = new Relay("RINSE",    10); // P-BR
+Relay *r8 = new Relay("SPIN1",    11); // R-BU
+Relay *r9 = new Relay("SPIN2",    12); // Y-W-BLK
+Relay *rA = new Relay("BYPASS",   13); // BLK-W-GY
+Relay *rB = new Relay("FILL",     A0); // BK-W-V
+Relay *rC = new Relay("ACTIVE",   A1); // BK-W-BLK
 
 Relay *all[] = {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,rA,rB,rC};
 
@@ -53,33 +56,39 @@ Cycle *c1 = new Cycle("Regular Wash", cycle1, n_phases);
 StartButton *startButton;
 
 void setup() {
-    Serial.println("Setup");
-    startButton = new StartButton(A0, 2000);
+    Serial.begin(9600);
+    Display->begin(16,2);
+    Display->backlight();
+    Display->clear();
+    Display->setCursor(0,0);
+    Display->print("Setup");
+    startButton = new StartButton(2, 2000);
     startButton->begin();
     for(int i = 0; i < n_relays; i++) {
         all[i]->begin();
     }
-    Serial.begin(9600);
-    Serial.println("Setup Done");
+    Display->print(" Done");
+    delay(1000);
 }
     
 void loop() {
     startButton->check();
     if (startButton->wasClicked()) {
-        //Serial.println("Button was clicked");
+        Serial.println("Button was clicked");
         startButton->reset(1000);
         if (!c1->isRunning()) {
             c1->start();
         }
     }
     if (startButton->wasHeld()) {
-        //Serial.println("Button was held");
+        Serial.println("Button was held");
         c1->stop();
         startButton->reset(5000);
     }
     c1->process();
     if (!c1->isRunning()) {
-        Serial.println("Ready");
+        Display->clear();
+        Display->print("Ready");
     }
     delay(100);
 }

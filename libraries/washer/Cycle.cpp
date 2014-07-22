@@ -1,5 +1,4 @@
 #include <Cycle.h>
-
 Cycle::Cycle(char *name, Phase *phases[], int n_phases) {
     _phases = phases;
     _n_phases = n_phases;
@@ -54,22 +53,24 @@ Phase *Cycle::next() {
 }
 
 void Cycle::stop() {
+    Serial.println("Cycle Stopped!");
     // The last phase should stop it all.
     _phases[_n_phases-1]->start();
     _currentPhase = _n_phases-1;
 }
 
 void Cycle::printProgress() {
-    double progress = progress();
-    int n = (int) (16*progress);
+    double prog = progress();
+    int n = (int) (16*prog);
+    Display->setCursor(0,1);
     for(int i = 0; i < n; i++) {
-        Serial.print("#");
+        Display->print("#");
     }
-    Serial.println();
 }
 
 void Cycle::process() {
     if (currentPhase() != (Phase *)NULL) {
+       currentPhase()->printTimeRemaining();
        if (currentPhase()->isDone()) {
            Phase *n = next();
            if (n != (Phase *)NULL) {
@@ -80,14 +81,15 @@ void Cycle::process() {
        printProgress();
     } else {
 #ifdef DEBUG
-        Serial.println("No Phases Left");
+        Serial.print("No Phases Left");
 #endif
     }
+}
     
 unsigned long Cycle::totalTime() {
     unsigned long time;
     for(int i = 0; i < _n_phases; i++) {
-        time += _phases[i].duration;
+        time += _phases[i]->duration();
     }
     return time;
 }
@@ -96,11 +98,11 @@ double Cycle::progress() {
     unsigned long time = totalTime();
     unsigned long performed = 0;
     for(int i = 0; i < _n_phases; i++) {
-        if (_phases[i].hasStarted()) {
-            if (_phases[i].isDone() == 0) {
-                performed += _phases[i].duration;
+        if (_phases[i]->hasStarted()) {
+            if (_phases[i]->isDone() == 0) {
+                performed += _phases[i]->duration();
             } else {
-                performed += _phases[i].duration - _phases[i].timeRemaining();
+                performed += _phases[i]->duration() - _phases[i]->timeRemaining();
                 break;
             }
         } else {
@@ -109,4 +111,3 @@ double Cycle::progress() {
     }
     return (double) performed / (double) time;
 }
-    

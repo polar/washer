@@ -1,5 +1,8 @@
+#ifndef __PHASE_H__
+#define __PHASE_H__
 #include <Arduino.h>
 #include <Relay.h>
+#include <Display.h>
 
 class Phase {
     Relay **_relays;
@@ -14,6 +17,9 @@ public:
     void start();
     void reset();
     long timeRemaining();
+    void printTimeRemaining();
+    long duration();
     boolean hasStarted();
     boolean isDone();
 };
+#endif

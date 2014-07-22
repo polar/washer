@@ -1,7 +1,10 @@
+#ifndef __RELAY_H__
+#define __RELAY_H__
 #include "Arduino.h"
 
-#define RELAY_OFF 0
-#define RELAY_ON  1
+
+#define RELAY_OFF HIGH
+#define RELAY_ON  LOW
 
 class Relay {
     int _pin;
@@ -15,3 +18,4 @@ public:
     int status();
     void set(int x);
 };
+#endif

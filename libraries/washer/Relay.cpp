@@ -13,11 +13,17 @@ void Relay::begin() {
 void Relay::off() {
   digitalWrite(_pin, RELAY_OFF);
   _status = RELAY_OFF;
+  Serial.print("Relay ");
+  Serial.print(_pin);
+  Serial.println(" OFF");
 }
 
 void Relay::on() {
   digitalWrite(_pin, RELAY_ON);
   _status = RELAY_ON;
+  Serial.print("Relay ");
+  Serial.print(_pin);
+  Serial.println(" ON");
 }
 
 void Relay::set(int x) {
