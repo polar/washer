@@ -21,5 +21,7 @@ public:
     long duration();
     boolean hasStarted();
     boolean isDone();
+    char * name();
+    void finish();
 };
 #endif

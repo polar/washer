@@ -27,6 +27,7 @@ void StartButton::check() {
     if (currentTimeMillis >= _activateTime) {
         int sig = digitalRead(_pin);
         boolean isClosed = (sig == HIGH);
+#ifdef DEBUG
             Serial.print("StartButton ");
             Serial.print(sig);
             Serial.print(" isClosed ");
@@ -37,6 +38,7 @@ void StartButton::check() {
             Serial.print(" time ");
             Serial.print(currentTimeMillis - _closeTimeMillis);
         }
+#endif
         
         if (isClosed != _wasClosed) {
             if (isClosed) {
@@ -53,17 +55,21 @@ void StartButton::check() {
         } else if (!isClosed && _wasClosed && !overHoldThreshold) {
             _clicked = true;
         }
+#ifdef DEBUG
         if (_held) 
             Serial.print(" held ");
         if (_clicked)
             Serial.print(" clicked");
         Serial.println();
+#endif
         digitalWrite(_pin, LOW);
         _wasClosed = isClosed;
     } else {
+#ifdef DEBUG
         Serial.print("StartButton active in ");
         Serial.print(_activateTime - currentTimeMillis);
         Serial.println(" millisecs");
+#endif
     }
 }
 

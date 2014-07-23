@@ -17,6 +17,9 @@ long Phase::duration() {
     return _duration;
 }
 
+char * Phase::name() {
+    return _name;
+}
 boolean Phase::hasStarted() {
     return _started;
 }
@@ -45,19 +48,22 @@ void Phase::printTimeRemaining() {
     long timeleft = timeRemaining();
 
     int secs, mins;
+#ifdef DEBUG
     Serial.print("Phase ");
     Serial.print(_name);
     Serial.print(" has ");
     Serial.print(timeleft);
     Serial.println(" miliseconds");
-    Display->home();
-    Display->clear();
+#endif
+    Display->setCursor(0,0);
     Display->print(_name);
-    Display->print("  ");
+    Display->print("              ");
     secs = timeleft/1000;
     mins = secs/60;
     secs = secs % 60;
-    Display->print(" ");Display->print(mins);
+    Display->setCursor(11,0);
+    if (mins < 10) Display->print(" ");
+    Display->print(mins);
     Display->print(":");
     if (secs < 10) Display->print("0");
     Display->print(secs);
@@ -66,3 +72,8 @@ void Phase::printTimeRemaining() {
 boolean Phase::isDone() {
     return timeRemaining() <= 0;
 }
+
+void Phase::finish() {
+  _startTime = millis() - _duration - 1;
+}
+

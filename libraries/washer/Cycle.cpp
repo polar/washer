@@ -62,11 +62,33 @@ void Cycle::stop() {
 void Cycle::printProgress() {
     double prog = progress();
     int n = (int) (16*prog);
+#define DEBUG 1
+#ifdef DEBUG
+    Serial.print("Progress ");
+    Serial.print(prog);
+    Serial.print(" = ");
+    Serial.println(n);
+#endif
     Display->setCursor(0,1);
     for(int i = 0; i < n; i++) {
         Display->print("#");
     }
 }
+
+void Cycle::advance() {
+    if (currentPhase() != (Phase *)NULL) {
+       if (currentPhase()->hasStarted()) {
+	   currentPhase()->finish();
+           Phase *n = next();
+           if (n != (Phase *)NULL) {
+               n->start();
+           }
+       }
+       // The above will always print a line with Phase and the Time.
+       printProgress();
+    }
+}
+  
 
 void Cycle::process() {
     if (currentPhase() != (Phase *)NULL) {
@@ -81,7 +103,7 @@ void Cycle::process() {
        printProgress();
     } else {
 #ifdef DEBUG
-        Serial.print("No Phases Left");
+        Serial.println("No Phases Left");
 #endif
     }
 }
@@ -99,7 +121,7 @@ double Cycle::progress() {
     unsigned long performed = 0;
     for(int i = 0; i < _n_phases; i++) {
         if (_phases[i]->hasStarted()) {
-            if (_phases[i]->isDone() == 0) {
+            if (_phases[i]->isDone()) {
                 performed += _phases[i]->duration();
             } else {
                 performed += _phases[i]->duration() - _phases[i]->timeRemaining();

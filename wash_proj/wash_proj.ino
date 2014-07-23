@@ -1,3 +1,4 @@
+
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Display.h>
@@ -12,7 +13,7 @@ Relay *r3 = new Relay("LO_MOTOR",  6); // V-T
 Relay *r4 = new Relay("AGITATE1",  7); // R-W-BLK
 Relay *r5 = new Relay("AGITATE2",  8); // Y-BU
 Relay *r6 = new Relay("WASH",      9); // P-BR
-Relay *r7 = new Relay("RINSE",    10); // P-BR
+Relay *r7 = new Relay("RINSE",    10); // P-Y-R
 Relay *r8 = new Relay("SPIN1",    11); // R-BU
 Relay *r9 = new Relay("SPIN2",    12); // Y-W-BLK
 Relay *rA = new Relay("BYPASS",   13); // BLK-W-GY
@@ -22,36 +23,47 @@ Relay *rC = new Relay("ACTIVE",   A1); // BK-W-BLK
 Relay *all[] = {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,rA,rB,rC};
 
 int n_relays = 13;
+//                   0  1  2  3  4  5  6  7  8  9  A  B  C
+int PFill[]      = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 }; //  Fill
+int PPreWash[]   = { 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1 }; // Fill Agitate, Wash HI
+int PDrain1[]    = { 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1 }; // 1/2 Tub Drain, Drain HI
+int PWashHi[]    = { 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1 }; // Agitate HI, Fill & Wash
+int PWashLo[]    = { 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1 }; // Agitate LO, Fill & Wash
+int PDrain2[]    = { 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1 }; //  Drain HI
+int PSpinWash[]  = { 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1 }; //  Spin HI
+int PRinse[]     = { 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1 }; // Fill Agitate, Rinse HI
+int PDrain3[]    = { 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1 }; //  Drain HI
+int PSpraySpin[] = { 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1 }; //  Spray Spin HI
+int PSpinRinse[] = { 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1 }; //  Spin HI
+int POff[]       = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //  Off
+int PWait[]      = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }; //  Wait
 
-int Phase0[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 }; //  Fill
-int Phase1[] = { 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1 }; // Fill Agitate, Wash HI
-int Phase2[] = { 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1 }; // 1/2 Tub Drain, Drain HI
-int Phase3[] = { 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1 }; // Agitate HI, Fill & Wash
-int Phase4[] = { 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 }; // Agitate LO, Fill & Wash
-int Phase5[] = { 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1 }; //  Drain HI
-int Phase6[] = { 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1 }; //  Spin HI
-int Phase7[] = { 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1 }; // Fill Agitate, Rinse HI
-int Phase8[] = { 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1 }; //  Drain HI
-int Phase9[] = { 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1 }; //  Spray Spin HI
-int PhaseA[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //  Off
+Phase *pFill      = new Phase("Fill",       5 * 60, all, PFill,      n_relays);
+Phase *pHalfFill  = new Phase("Fill",       3 * 60, all, PFill,      n_relays);
+Phase *pPreWash   = new Phase("PreWash",    4 * 60, all, PPreWash,   n_relays);
+Phase *pDrain1    = new Phase("Drain",      1 * 60, all, PDrain1,    n_relays);
+Phase *pWashHi    = new Phase("Wash Hi",    5 * 60, all, PWashHi,    n_relays);
+Phase *pWashLo    = new Phase("Wash Lo",    5 * 60, all, PWashLo,    n_relays); 
+Phase *pDrain2    = new Phase("Drain",      3 * 60, all, PDrain2,    n_relays);
+Phase *pSpinWash  = new Phase("Spin Wash",  4 * 60, all, PSpinWash,  n_relays);
+Phase *pRinse     = new Phase("Rinse",      4 * 60, all, PRinse,     n_relays);
+Phase *pDrain3    = new Phase("Drain",      3 * 60, all, PDrain3,    n_relays);
+Phase *pSpraySpin = new Phase("Spin/Spray", 2 * 60, all, PSpraySpin, n_relays);
+Phase *pSpinRinse = new Phase("Spin Rinse" ,4 * 60, all, PSpinRinse, n_relays);
+Phase *pOff       = new Phase("Off",            20, all, POff,       n_relays);
+Phase *pWait      = new Phase("Wait",            6, all, PWait,      n_relays);
 
-Phase *p0 = new Phase("Fill",  1 * 60, all, Phase0, n_relays);
-Phase *p1 = new Phase("Wash",  3 * 60, all, Phase1, n_relays);
-Phase *p2 = new Phase("Drain", 3 * 60, all, Phase2, n_relays);
-Phase *p3 = new Phase("Wash", 10 * 60, all, Phase3, n_relays);
-Phase *p4 = new Phase("Wash",  5 * 60, all, Phase4, n_relays);
-Phase *p5 = new Phase("Drain", 5 * 60, all, Phase5, n_relays);
-Phase *p6 = new Phase("Spin",  5 * 60, all, Phase6, n_relays);
-Phase *p7 = new Phase("Rinse", 8 * 60, all, Phase7, n_relays);
-Phase *p8 = new Phase("Drain", 5 * 60, all, Phase8, n_relays);
-Phase *p9 = new Phase("Spin", 10 * 60, all, Phase9, n_relays);
-Phase *pA = new Phase("Off",       20, all, PhaseA, n_relays);
+int n_phases = 22; 
 
-int n_phases = 11;
+Phase *regularWashPhases[] = {
+  pFill, pPreWash, pWait, pDrain1, pWait, pHalfFill, pWashHi, pWashLo, pWait,
+  pDrain2, pWait, pSpinWash, pWait, pFill, pRinse, pWait, pDrain3, 
+  pWait, pSpraySpin, pSpinRinse, pWait, pOff
+};
 
-Phase *cycle1[] = {p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,pA};
+Cycle *regularWashCycle = new Cycle("Regular Wash", regularWashPhases, n_phases);
 
-Cycle *c1 = new Cycle("Regular Wash", cycle1, n_phases);
+Cycle *currentCycle;
 
 StartButton *startButton;
 
@@ -68,6 +80,7 @@ void setup() {
         all[i]->begin();
     }
     Display->print(" Done");
+    currentCycle = regularWashCycle;
     delay(1000);
 }
     
@@ -76,17 +89,19 @@ void loop() {
     if (startButton->wasClicked()) {
         Serial.println("Button was clicked");
         startButton->reset(1000);
-        if (!c1->isRunning()) {
-            c1->start();
+        if (!currentCycle->isRunning()) {
+            currentCycle->start();
+        } else {
+          currentCycle->advance();
         }
     }
     if (startButton->wasHeld()) {
         Serial.println("Button was held");
-        c1->stop();
+        currentCycle->stop();
         startButton->reset(5000);
     }
-    c1->process();
-    if (!c1->isRunning()) {
+    currentCycle->process();
+    if (!currentCycle->isRunning()) {
         Display->clear();
         Display->print("Ready");
     }

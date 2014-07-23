@@ -21,5 +21,6 @@ public:
     unsigned long totalTime();
     double progress();
     void printProgress();
+    void advance();
 };
 #endif
