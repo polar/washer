@@ -38,32 +38,34 @@ int PSpinRinse[] = { 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1 }; //  Spin HI
 int POff[]       = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //  Off
 int PWait[]      = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }; //  Wait
 
-Phase *pFill      = new Phase("Fill",       5 * 60, all, PFill,      n_relays);
-Phase *pHalfFill  = new Phase("Fill",       3 * 60, all, PFill,      n_relays);
-Phase *pPreWash   = new Phase("PreWash",    4 * 60, all, PPreWash,   n_relays);
-Phase *pDrain1    = new Phase("Drain",      1 * 60, all, PDrain1,    n_relays);
-Phase *pWashHi    = new Phase("Wash Hi",    5 * 60, all, PWashHi,    n_relays);
-Phase *pWashLo    = new Phase("Wash Lo",    5 * 60, all, PWashLo,    n_relays); 
-Phase *pDrain2    = new Phase("Drain",      3 * 60, all, PDrain2,    n_relays);
-Phase *pSpinWash  = new Phase("Spin Wash",  4 * 60, all, PSpinWash,  n_relays);
-Phase *pRinse     = new Phase("Rinse",      4 * 60, all, PRinse,     n_relays);
-Phase *pDrain3    = new Phase("Drain",      3 * 60, all, PDrain3,    n_relays);
-Phase *pSpraySpin = new Phase("Spin/Spray", 2 * 60, all, PSpraySpin, n_relays);
-Phase *pSpinRinse = new Phase("Spin Rinse" ,4 * 60, all, PSpinRinse, n_relays);
-Phase *pOff       = new Phase("Off",            20, all, POff,       n_relays);
-Phase *pWait      = new Phase("Wait",            6, all, PWait,      n_relays);
+// It appears that if we create 5 more of these, we get corruption somewhere. Limit?
+Phase *pFill       = new Phase("Fill",       5 * 60, all, PFill,      n_relays);
+Phase *pPreWash    = new Phase("PreWash",    2 * 60, all, PPreWash,   n_relays);
+Phase *pWait       = new Phase("Wait",            6, all, PWait,      n_relays);
+Phase *pDrain1     = new Phase("Half Drain",     20, all, PDrain1,    n_relays);
+Phase *pHalfFill   = new Phase("Fill",       3 * 60, all, PFill,      n_relays);
+Phase *pWashHi     = new Phase("Wash Hi",    4 * 60, all, PWashHi,    n_relays);
+Phase *pWashLo     = new Phase("Wash Lo",    4 * 60, all, PWashLo,    n_relays); 
+Phase *pDrain2     = new Phase("Drain",      3 * 60, all, PDrain2,    n_relays);
+Phase *pSpinWash   = new Phase("Spin Wash",  4 * 60, all, PSpinWash,  n_relays);
+Phase *pRinse      = new Phase("Rinse",      4 * 60, all, PRinse,     n_relays);
+Phase *pDrain3     = new Phase("Drain",      3 * 60, all, PDrain3,    n_relays);
+Phase *pSpraySpin  = new Phase("Spin/Spray", 2 * 60, all, PSpraySpin, n_relays);
+Phase *pSpinRinse  = new Phase("Spin Rinse", 4 * 60, all, PSpinRinse, n_relays);
+Phase *pOff        = new Phase("Done",           10, all, POff,       n_relays);
 
-int n_phases = 22; 
+int n_phases = 21; 
+
 
 Phase *regularWashPhases[] = {
   pFill, pPreWash, pWait, pDrain1, pWait, pHalfFill, pWashHi, pWashLo, pWait,
   pDrain2, pWait, pSpinWash, pWait, pFill, pRinse, pWait, pDrain3, 
-  pWait, pSpraySpin, pSpinRinse, pWait, pOff
+  pWait, pSpraySpin, pSpinRinse, pOff
 };
 
 Cycle *regularWashCycle = new Cycle("Regular Wash", regularWashPhases, n_phases);
 
-Cycle *currentCycle;
+Cycle *currentCycle = regularWashCycle;
 
 StartButton *startButton;
 

@@ -61,8 +61,7 @@ void Cycle::stop() {
 
 void Cycle::printProgress() {
     double prog = progress();
-    int n = (int) (16*prog);
-#define DEBUG 1
+    int n = (int) (16*prog) + 1;
 #ifdef DEBUG
     Serial.print("Progress ");
     Serial.print(prog);
@@ -78,7 +77,7 @@ void Cycle::printProgress() {
 void Cycle::advance() {
     if (currentPhase() != (Phase *)NULL) {
        if (currentPhase()->hasStarted()) {
-	   currentPhase()->finish();
+           currentPhase()->finish();
            Phase *n = next();
            if (n != (Phase *)NULL) {
                n->start();
@@ -109,7 +108,7 @@ void Cycle::process() {
 }
     
 unsigned long Cycle::totalTime() {
-    unsigned long time;
+    unsigned long time = 0;
     for(int i = 0; i < _n_phases; i++) {
         time += _phases[i]->duration();
     }
@@ -119,16 +118,12 @@ unsigned long Cycle::totalTime() {
 double Cycle::progress() {
     unsigned long time = totalTime();
     unsigned long performed = 0;
-    for(int i = 0; i < _n_phases; i++) {
-        if (_phases[i]->hasStarted()) {
-            if (_phases[i]->isDone()) {
-                performed += _phases[i]->duration();
-            } else {
-                performed += _phases[i]->duration() - _phases[i]->timeRemaining();
-                break;
-            }
-        } else {
-            break;
+    if (0 <= _currentPhase && _currentPhase < _n_phases) {
+        for(int i = 0; i < _currentPhase; i++) {
+            performed += _phases[i]->duration();
+        }
+        if (_phases[_currentPhase]->hasStarted()) {
+            performed += _phases[_currentPhase]->duration() - _phases[_currentPhase]->timeRemaining();
         }
     }
     return (double) performed / (double) time;

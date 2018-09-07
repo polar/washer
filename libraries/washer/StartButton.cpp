@@ -7,6 +7,8 @@ StartButton::StartButton(int pin, int threshold) {
   _clicked = false;
   _holdReported = false;
   _wasClosed = false;
+            Serial.print("StartButton ");
+            Serial.println(_pin);
 }
 
 void StartButton::begin() {
@@ -62,7 +64,6 @@ void StartButton::check() {
             Serial.print(" clicked");
         Serial.println();
 #endif
-        digitalWrite(_pin, LOW);
         _wasClosed = isClosed;
     } else {
 #ifdef DEBUG

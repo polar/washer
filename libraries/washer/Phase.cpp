@@ -41,6 +41,7 @@ void Phase::start() {
 
 long Phase::timeRemaining() {
     long timeleft =  _duration - (millis() - _startTime);
+    if (timeleft < 0) return 0;
     return timeleft;
 }
 
@@ -70,10 +71,11 @@ void Phase::printTimeRemaining() {
 }
 
 boolean Phase::isDone() {
-    return timeRemaining() <= 0;
+    return _started && timeRemaining() <= 0;
 }
 
 void Phase::finish() {
   _startTime = millis() - _duration - 1;
+  _started = false;
 }
 
